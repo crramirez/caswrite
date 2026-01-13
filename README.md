@@ -1,10 +1,30 @@
-# Casciian App Template
+# CasWrite - Text Editor with Table Support
 
-Application template for building [Casciian](https://github.com/crramirez/casciian) TUI-based applications. This template includes support for native builds, DEB and RPM package generation.
+A powerful text-based editor built with [Casciian](https://github.com/crramirez/casciian) that combines traditional text editing with spreadsheet capabilities. CasWrite supports multiple overlapping windows, mouse operations, and can open both text files and CSV/table files simultaneously.
 
-## Description
+![CasWrite Demo](https://github.com/user-attachments/assets/fbb6a3eb-51df-4a64-8305-695d37e0ab79)
 
-This is a starter template for creating text-based user interface (TUI) applications using the Casciian Java library. It includes a simple "Hello World" demonstration that you can customize for your own application.
+## Features
+
+- **Text Editing**: Open and edit text files in dedicated editor windows with full editing capabilities
+- **Table Support**: Open CSV and TSV files in spreadsheet-like table windows
+- **Multiple Windows**: Work with multiple files simultaneously in overlapping windows
+- **Rich Menus**:
+  - **File Menu**: New, Open, Open as Table, Save, Save As, Exit
+  - **Edit Menu**: Undo, Redo, Cut, Copy, Paste, Clear, Find, Replace, Go to Line
+  - **System Menu**: Shell access for running OS commands
+  - **Window Menu**: Tile, Cascade, Close All, Next, Previous window management
+  - **Table Menu**: Table-specific operations for CSV/spreadsheet files
+- **Mouse Support**: Full mouse support for window management and text selection
+- **Terminal-Based**: Runs in any Xterm-compatible terminal
+
+## Use Cases
+
+CasWrite can serve as:
+- A default text editor for Linux (similar to nano or vim but with GUI-like features)
+- A CSV/table data viewer and editor
+- A multi-file text editing environment
+- A combination text and data editor in a single application
 
 ## Prerequisites
 
@@ -21,20 +41,34 @@ This is a starter template for creating text-based user interface (TUI) applicat
 ./gradlew clean build
 ```
 
-This creates a JAR file in `build/libs/casciianapp-<version>.jar`
+This creates a JAR file in `build/libs/caswrite-<version>.jar`
 
-### Running the Application
+## Running CasWrite
+
+After building, you can run CasWrite in several ways:
+
+### Run with Gradle
 
 ```bash
 ./gradlew installDist
-./build/install/casciianapp/bin/casciianapp
+./build/install/caswrite/bin/caswrite
 ```
 
-Or with Java directly:
+### Run with a file
 
 ```bash
-export JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64
-java -jar build/libs/casciianapp-<version>.jar
+# Open a text file
+./build/install/caswrite/bin/caswrite myfile.txt
+
+# Open a CSV file (automatically opens in table view)
+./build/install/caswrite/bin/caswrite data.csv
+```
+
+### Run the JAR directly
+
+```bash
+java -jar build/libs/caswrite-<version>.jar
+java -jar build/libs/caswrite-<version>.jar myfile.txt
 ```
 
 ### Native Image Compilation (Required for Packaging)
@@ -62,7 +96,7 @@ Or download directly from [GraalVM Downloads](https://www.graalvm.org/downloads/
 ./gradlew nativeCompile
 ```
 
-This creates a native executable at `build/native/nativeCompile/casciianapp`
+This creates a native executable at `build/native/nativeCompile/caswrite`
 
 ### Creating DEB and RPM Packages
 
@@ -92,33 +126,51 @@ Or build individually:
 ```
 
 The packages will include only:
-- `/usr/bin/casciianapp` - Native executable binary
+- `/usr/bin/caswrite` - Native executable binary
 
 #### Installing the Packages
 
 **Debian/Ubuntu:**
 ```bash
-sudo dpkg -i build/distributions/deb/casciianapp_0.1.0-1_amd64.deb
+sudo dpkg -i build/distributions/deb/caswrite_0.1.0-1_amd64.deb
 sudo apt-get install -f  # Install dependencies if needed
 ```
 
 **RedHat/CentOS/Fedora:**
 ```bash
-sudo rpm -ivh build/distributions/rpm/casciianapp-0.1.0-1.x86_64.rpm
+sudo rpm -ivh build/distributions/rpm/caswrite-0.1.0-1.x86_64.rpm
 ```
 
 After installation, you can run the application:
 ```bash
-casciianapp
+caswrite
+caswrite myfile.txt
+caswrite data.csv
 ```
+
+## Keyboard Shortcuts
+
+CasWrite supports standard keyboard shortcuts:
+
+- **Alt+F**: File menu
+- **Alt+E**: Edit menu  
+- **Alt+S**: System menu
+- **Alt+W**: Window menu
+- **Alt+T**: Table menu
+- **F3**: Find
+- **Ctrl+S**: Save (in editor windows)
+- **Ctrl+Q**: Quit
+- **Ctrl+X**: Cut
+- **Ctrl+C**: Copy
+- **Ctrl+V**: Paste
 
 ## Customizing the Template
 
 This template is designed to be a starting point for your own Casciian-based application:
 
-1. **Rename the project**: Update `settings.gradle` to change the project name
-2. **Update package names**: Modify the package structure in `src/main/java/` to match your organization
-3. **Customize the application**: Edit `HelloWorld.java` or create new classes for your application logic
+1. **Modify features**: Update `CasWrite.java` to add new menu items or functionality
+2. **Add file type support**: Extend the file opening logic to support additional formats
+3. **Customize menus**: Add new menus or modify existing menu items
 4. **Update metadata**: 
    - Edit `build.gradle` to update group, description, URLs, and maintainer information
    - Update `gradle.properties` to set your version
@@ -127,21 +179,21 @@ This template is designed to be a starting point for your own Casciian-based app
 ## Project Structure
 
 ```
-casciianapp/
+caswrite/
 ├── build.gradle              # Gradle build configuration
 ├── settings.gradle           # Gradle settings
 ├── gradle.properties         # Project version and properties
 ├── src/
 │   └── main/
 │       └── java/
-│           └── io/github/crramirez/casciianapp/
-│               └── HelloWorld.java   # Main application (customize this!)
+│           └── io/github/crramirez/caswrite/
+│               └── CasWrite.java   # Main application class
 └── README.md
 ```
 
 ## License
 
-Apache License 2.0 - Copyright 2025 [Your Name Here]
+Apache License 2.0 - Copyright 2025 Carlos Rafael Ramirez
 
 ## Dependencies
 
