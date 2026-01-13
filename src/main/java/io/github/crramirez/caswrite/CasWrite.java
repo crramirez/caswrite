@@ -128,14 +128,19 @@ public class CasWrite extends TApplication {
      * @throws IOException if an error occurs opening the file
      */
     private void openFileInWindow(File file) throws IOException {
-        if (file.exists() && file.isFile()) {
-            // Determine if it's a CSV/TSV file or text file
-            String name = file.getName().toLowerCase();
-            if (name.endsWith(".csv") || name.endsWith(".tsv")) {
-                new TTableWindow(this, file);
-            } else {
-                new TEditorWindow(this, file);
-            }
+        if (!file.exists()) {
+            throw new IOException("File does not exist: " + file.getPath());
+        }
+        if (!file.isFile()) {
+            throw new IOException("Not a regular file: " + file.getPath());
+        }
+        
+        // Determine if it's a CSV/TSV file or text file
+        String name = file.getName().toLowerCase();
+        if (name.endsWith(".csv") || name.endsWith(".tsv")) {
+            new TTableWindow(this, file);
+        } else {
+            new TEditorWindow(this, file);
         }
     }
 
