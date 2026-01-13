@@ -85,11 +85,47 @@ public class CasWrite extends TApplication {
     @Override
     public boolean onMenu(TMenuEvent menu) {
         switch (menu.getId()) {
+            case TMenu.MID_NEW:
+                createNewEditor();
+                return true;
+            case TMenu.MID_OPEN_FILE:
+                openFile();
+                return true;
             case MID_OPEN_AS_TABLE:
                 openAsTable();
                 return true;
             default:
                 return super.onMenu(menu);
+        }
+    }
+
+    /**
+     * Create a new empty editor window.
+     */
+    private void createNewEditor() {
+        new TEditorWindow(this);
+    }
+
+    /**
+     * Open a file in an appropriate window (editor or table based on extension).
+     */
+    private void openFile() {
+        try {
+            String filename = fileOpenBox(".");
+            if (filename != null) {
+                File file = new File(filename);
+                if (file.exists() && file.isFile()) {
+                    // Determine if it's a CSV/TSV file or text file
+                    String name = file.getName().toLowerCase();
+                    if (name.endsWith(".csv") || name.endsWith(".tsv")) {
+                        new TTableWindow(this, file);
+                    } else {
+                        new TEditorWindow(this, file);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            messageBox("Error", "Error opening file: " + e.getMessage());
         }
     }
 
