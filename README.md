@@ -2,6 +2,8 @@
 
 A powerful text-based editor built with [Casciian](https://github.com/crramirez/casciian) that combines traditional text editing with spreadsheet capabilities. CasWrite supports multiple overlapping windows, mouse operations, and can open both text files and CSV/table files simultaneously.
 
+![CasWrite Demo](https://github.com/user-attachments/assets/fbb6a3eb-51df-4a64-8305-695d37e0ab79)
+
 ## Features
 
 - **Text Editing**: Open and edit text files in dedicated editor windows with full editing capabilities
