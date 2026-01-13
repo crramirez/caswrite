@@ -152,9 +152,15 @@ public class CasWrite extends TApplication {
             String filename = fileOpenBox(".");
             if (filename != null) {
                 File file = new File(filename);
-                if (file.exists() && file.isFile()) {
-                    new TTableWindow(this, file);
+                if (!file.exists()) {
+                    messageBox("Error", "File does not exist: " + file.getPath());
+                    return;
                 }
+                if (!file.isFile()) {
+                    messageBox("Error", "Not a regular file: " + file.getPath());
+                    return;
+                }
+                new TTableWindow(this, file);
             }
         } catch (IOException e) {
             messageBox("Error", "Error opening file: " + e.getMessage());
