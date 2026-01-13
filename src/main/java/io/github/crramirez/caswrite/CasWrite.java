@@ -47,29 +47,34 @@ public class CasWrite extends TApplication {
         super(BackendType.XTERM);
         
         // Add all menus
+        addSystemMenu();
         addFileMenuWithTable();
         addEditMenu();
-        addSystemMenu();
-        addWindowMenu();
         addTableMenu();
+        addWindowMenu();
     }
 
     /**
      * Add the File menu with custom options.
      */
     private void addFileMenuWithTable() {
-        TMenu fileMenu = addFileMenu();
+        TMenu fileMenu = addMenu("&File");
         
-        // Add "Open as Table" option after "Open File"
+        fileMenu.addDefaultItem(TMenu.MID_NEW);
+        fileMenu.addDefaultItem(TMenu.MID_OPEN_FILE);
         fileMenu.addItem(MID_OPEN_AS_TABLE, "&Open as Table...");
+        fileMenu.addDefaultItem(TMenu.MID_SAVE_FILE);
+        fileMenu.addDefaultItem(TMenu.MID_SAVE_AS_FILE);
+        fileMenu.addSeparator();
+        fileMenu.addDefaultItem(TMenu.MID_EXIT);
     }
 
     /**
      * Add the System menu with OS shell option.
      */
     private void addSystemMenu() {
-        TMenu systemMenu = addMenu("&System");
-        systemMenu.addItem(TMenu.MID_SHELL, "&Shell");
+        TMenu systemMenu = addToolMenu();
+        systemMenu.addDefaultItem(TMenu.MID_SHELL);
     }
 
     /**
@@ -115,27 +120,25 @@ public class CasWrite extends TApplication {
             CasWrite app = new CasWrite();
             
             // If filenames were provided as arguments, open them
-            if (args.length > 0) {
-                for (String arg : args) {
-                    File file = new File(arg);
-                    if (file.exists() && file.isFile()) {
-                        try {
-                            // Determine if it's a CSV file or text file
-                            String filename = file.getName().toLowerCase();
-                            if (filename.endsWith(".csv") || filename.endsWith(".tsv")) {
-                                new TTableWindow(app, file);
-                            } else {
-                                new TEditorWindow(app, file);
-                            }
-                        } catch (Exception e) {
-                            // Show error message to user via message box
-                            app.messageBox("Error Opening File", 
-                                "Failed to open '" + file.getName() + "': " + e.getMessage());
+            for (String arg : args) {
+                File file = new File(arg);
+                if (file.exists() && file.isFile()) {
+                    try {
+                        // Determine if it's a CSV file or text file
+                        String filename = file.getName().toLowerCase();
+                        if (filename.endsWith(".csv") || filename.endsWith(".tsv")) {
+                            new TTableWindow(app, file);
+                        } else {
+                            new TEditorWindow(app, file);
                         }
+                    } catch (Exception e) {
+                        // Show error message to user via message box
+                        app.messageBox("Error Opening File",
+                            "Failed to open '" + file.getName() + "': " + e.getMessage());
                     }
                 }
             }
-            
+
             (new Thread(app)).start();
         } catch (Exception e) {
             e.printStackTrace();
