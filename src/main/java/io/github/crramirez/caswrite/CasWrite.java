@@ -134,7 +134,6 @@ public class CasWrite extends TApplication {
         if (!file.isFile()) {
             throw new IOException("Not a regular file: " + file.getPath());
         }
-        
         // Determine if it's a CSV/TSV file or text file
         String name = file.getName().toLowerCase();
         if (name.endsWith(".csv") || name.endsWith(".tsv")) {
