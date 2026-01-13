@@ -114,18 +114,28 @@ public class CasWrite extends TApplication {
             String filename = fileOpenBox(".");
             if (filename != null) {
                 File file = new File(filename);
-                if (file.exists() && file.isFile()) {
-                    // Determine if it's a CSV/TSV file or text file
-                    String name = file.getName().toLowerCase();
-                    if (name.endsWith(".csv") || name.endsWith(".tsv")) {
-                        new TTableWindow(this, file);
-                    } else {
-                        new TEditorWindow(this, file);
-                    }
-                }
+                openFileInWindow(file);
             }
         } catch (IOException e) {
             messageBox("Error", "Error opening file: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Open a file in the appropriate window type based on its extension.
+     *
+     * @param file the file to open
+     * @throws IOException if an error occurs opening the file
+     */
+    private void openFileInWindow(File file) throws IOException {
+        if (file.exists() && file.isFile()) {
+            // Determine if it's a CSV/TSV file or text file
+            String name = file.getName().toLowerCase();
+            if (name.endsWith(".csv") || name.endsWith(".tsv")) {
+                new TTableWindow(this, file);
+            } else {
+                new TEditorWindow(this, file);
+            }
         }
     }
 
@@ -158,20 +168,12 @@ public class CasWrite extends TApplication {
             // If filenames were provided as arguments, open them
             for (String arg : args) {
                 File file = new File(arg);
-                if (file.exists() && file.isFile()) {
-                    try {
-                        // Determine if it's a CSV file or text file
-                        String filename = file.getName().toLowerCase();
-                        if (filename.endsWith(".csv") || filename.endsWith(".tsv")) {
-                            new TTableWindow(app, file);
-                        } else {
-                            new TEditorWindow(app, file);
-                        }
-                    } catch (Exception e) {
-                        // Show error message to user via message box
-                        app.messageBox("Error Opening File",
-                            "Failed to open '" + file.getName() + "': " + e.getMessage());
-                    }
+                try {
+                    app.openFileInWindow(file);
+                } catch (Exception e) {
+                    // Show error message to user via message box
+                    app.messageBox("Error Opening File",
+                        "Failed to open '" + file.getName() + "': " + e.getMessage());
                 }
             }
 
