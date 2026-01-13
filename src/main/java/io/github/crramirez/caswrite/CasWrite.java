@@ -20,10 +20,8 @@ package io.github.crramirez.caswrite;
 import casciian.TApplication;
 import casciian.TEditorWindow;
 import casciian.TTableWindow;
-import casciian.TWidget;
 import casciian.event.TMenuEvent;
 import casciian.menu.TMenu;
-import casciian.menu.TMenuItem;
 
 import java.io.File;
 import java.io.IOException;
@@ -110,22 +108,24 @@ public class CasWrite extends TApplication {
     /**
      * Main entry point.
      *
-     * @param args Command line arguments (optional filename to open)
+     * @param args Command line arguments (optional filenames to open)
      */
     public static void main(String[] args) {
         try {
             CasWrite app = new CasWrite();
             
-            // If a filename was provided as an argument, open it
+            // If filenames were provided as arguments, open them
             if (args.length > 0) {
-                File file = new File(args[0]);
-                if (file.exists() && file.isFile()) {
-                    // Determine if it's a CSV file or text file
-                    String filename = file.getName().toLowerCase();
-                    if (filename.endsWith(".csv") || filename.endsWith(".tsv")) {
-                        new TTableWindow(app, file);
-                    } else {
-                        new TEditorWindow(app, file);
+                for (String arg : args) {
+                    File file = new File(arg);
+                    if (file.exists() && file.isFile()) {
+                        // Determine if it's a CSV file or text file
+                        String filename = file.getName().toLowerCase();
+                        if (filename.endsWith(".csv") || filename.endsWith(".tsv")) {
+                            new TTableWindow(app, file);
+                        } else {
+                            new TEditorWindow(app, file);
+                        }
                     }
                 }
             }
