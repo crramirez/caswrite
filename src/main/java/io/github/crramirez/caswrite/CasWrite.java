@@ -119,12 +119,18 @@ public class CasWrite extends TApplication {
                 for (String arg : args) {
                     File file = new File(arg);
                     if (file.exists() && file.isFile()) {
-                        // Determine if it's a CSV file or text file
-                        String filename = file.getName().toLowerCase();
-                        if (filename.endsWith(".csv") || filename.endsWith(".tsv")) {
-                            new TTableWindow(app, file);
-                        } else {
-                            new TEditorWindow(app, file);
+                        try {
+                            // Determine if it's a CSV file or text file
+                            String filename = file.getName().toLowerCase();
+                            if (filename.endsWith(".csv") || filename.endsWith(".tsv")) {
+                                new TTableWindow(app, file);
+                            } else {
+                                new TEditorWindow(app, file);
+                            }
+                        } catch (Exception e) {
+                            // Show error message to user via message box
+                            app.messageBox("Error Opening File", 
+                                "Failed to open '" + file.getName() + "': " + e.getMessage());
                         }
                     }
                 }
