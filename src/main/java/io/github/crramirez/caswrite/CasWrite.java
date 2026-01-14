@@ -18,8 +18,10 @@
 package io.github.crramirez.caswrite;
 
 import casciian.TApplication;
+import casciian.TCommand;
 import casciian.TEditorWindow;
 import casciian.TTableWindow;
+import casciian.event.TCommandEvent;
 import casciian.event.TMenuEvent;
 import casciian.menu.TMenu;
 
@@ -96,6 +98,12 @@ public class CasWrite extends TApplication {
                 return true;
             case MID_OPEN_AS_TABLE:
                 openAsTable();
+                return true;
+            case TMenu.MID_SAVE_FILE:
+                postMenuEvent(new TCommandEvent(menu.getBackend(), TCommand.cmSave));
+                return true;
+            case TMenu.MID_SAVE_AS_FILE:
+                postMenuEvent(new TCommandEvent(menu.getBackend(), TCommand.cmSaveAs));
                 return true;
             default:
                 return super.onMenu(menu);
