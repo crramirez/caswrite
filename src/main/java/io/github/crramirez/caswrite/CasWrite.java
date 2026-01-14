@@ -19,8 +19,11 @@ package io.github.crramirez.caswrite;
 
 import casciian.TApplication;
 import casciian.TCommand;
+import casciian.TEditor;
 import casciian.TEditorWindow;
 import casciian.TTableWindow;
+import casciian.TWidget;
+import casciian.TWindow;
 import casciian.event.TCommandEvent;
 import casciian.event.TMenuEvent;
 import casciian.menu.TMenu;
@@ -43,6 +46,10 @@ public class CasWrite extends TApplication {
     // File type detector for determining how to open files
     private final FileTypeDetector fileTypeDetector = new FileTypeDetector();
 
+    // Track previous menu states to avoid unnecessary updates
+    private boolean lastSaveEnabled = false;
+    private boolean lastSaveAsEnabled = false;
+
     /**
      * Constructor.
      *
@@ -57,6 +64,10 @@ public class CasWrite extends TApplication {
         addEditMenu();
         addTableMenu();
         addWindowMenu();
+
+        // Initialize menu states (no windows at startup)
+        disableMenuItem(TMenu.MID_SAVE_FILE);
+        disableMenuItem(TMenu.MID_SAVE_AS_FILE);
     }
 
     /**
@@ -177,6 +188,75 @@ public class CasWrite extends TApplication {
         } catch (IOException e) {
             messageBox("Error Opening File", "Error opening file: " + e.getMessage());
         }
+    }
+
+    /**
+     * Called before drawing the screen. Updates menu item states based on
+     * current application state.
+     */
+    @Override
+    protected void onPreDraw() {
+        super.onPreDraw();
+        updateMenuStates();
+    }
+
+    /**
+     * Update the enabled/disabled state of menu items based on current
+     * application state. Only updates menu items when their state changes.
+     */
+    private void updateMenuStates() {
+        boolean hasWindow = windowCount() > 0;
+        boolean shouldEnableSave = hasWindow && hasUnsavedChangesInActiveWindow();
+        boolean shouldEnableSaveAs = hasWindow;
+
+        // Only update menu items when state changes
+        if (shouldEnableSave != lastSaveEnabled) {
+            if (shouldEnableSave) {
+                enableMenuItem(TMenu.MID_SAVE_FILE);
+            } else {
+                disableMenuItem(TMenu.MID_SAVE_FILE);
+            }
+            lastSaveEnabled = shouldEnableSave;
+        }
+
+        if (shouldEnableSaveAs != lastSaveAsEnabled) {
+            if (shouldEnableSaveAs) {
+                enableMenuItem(TMenu.MID_SAVE_AS_FILE);
+            } else {
+                disableMenuItem(TMenu.MID_SAVE_AS_FILE);
+            }
+            lastSaveAsEnabled = shouldEnableSaveAs;
+        }
+    }
+
+    /**
+     * Check if the active window has unsaved changes.
+     *
+     * @return true if the active window has unsaved changes, false otherwise
+     */
+    private boolean hasUnsavedChangesInActiveWindow() {
+        TWindow activeWindow = getActiveWindow();
+        if (activeWindow == null) {
+            return false;
+        }
+
+        // For TEditorWindow, find the TEditor child and check if it's dirty
+        // TEditorWindow has exactly one TEditor child
+        if (activeWindow instanceof TEditorWindow) {
+            for (TWidget child : activeWindow.getChildren()) {
+                if (child instanceof TEditor) {
+                    return ((TEditor) child).isDirty();
+                }
+            }
+        }
+
+        // For TTableWindow, we assume it can always be saved (no isDirty method available)
+        // So return true to keep Save enabled
+        if (activeWindow instanceof TTableWindow) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
