@@ -85,11 +85,76 @@ public class CasWrite extends TApplication {
     @Override
     public boolean onMenu(TMenuEvent menu) {
         switch (menu.getId()) {
+            case TMenu.MID_NEW:
+                createNewEditor();
+                return true;
+            case TMenu.MID_OPEN_FILE:
+                openFile();
+                return true;
             case MID_OPEN_AS_TABLE:
                 openAsTable();
                 return true;
             default:
                 return super.onMenu(menu);
+        }
+    }
+
+    /**
+     * Create a new empty editor window.
+     */
+    private void createNewEditor() {
+        new TEditorWindow(this);
+    }
+
+    /**
+     * Open a file in an appropriate window (editor or table based on extension).
+     */
+    private void openFile() {
+        try {
+            String filename = fileOpenBox(".");
+            if (filename != null) {
+                File file = new File(filename);
+                openFileInWindow(file);
+            }
+        } catch (IOException e) {
+            messageBox("Error Opening File", "Error opening file: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Open a file in the appropriate window type based on its extension.
+     *
+     * @param file the file to open
+     * @throws IOException if an error occurs opening the file
+     */
+    private void openFileInWindow(File file) throws IOException {
+        openFileInWindow(file, false);
+    }
+
+    /**
+     * Open a file in the appropriate window type.
+     *
+     * @param file the file to open
+     * @param forceTable if true, always open as table regardless of extension
+     * @throws IOException if an error occurs opening the file
+     */
+    private void openFileInWindow(File file, boolean forceTable) throws IOException {
+        if (!file.exists()) {
+            throw new IOException("File does not exist: " + file.getPath());
+        }
+        if (!file.isFile()) {
+            throw new IOException("Not a regular file: " + file.getPath());
+        }
+        // Determine if it's a CSV/TSV file or text file
+        if (forceTable) {
+            new TTableWindow(this, file);
+        } else {
+            String name = file.getName().toLowerCase();
+            if (name.endsWith(".csv") || name.endsWith(".tsv")) {
+                new TTableWindow(this, file);
+            } else {
+                new TEditorWindow(this, file);
+            }
         }
     }
 
@@ -101,12 +166,10 @@ public class CasWrite extends TApplication {
             String filename = fileOpenBox(".");
             if (filename != null) {
                 File file = new File(filename);
-                if (file.exists() && file.isFile()) {
-                    new TTableWindow(this, file);
-                }
+                openFileInWindow(file, true);
             }
         } catch (IOException e) {
-            messageBox("Error", "Error opening file: " + e.getMessage());
+            messageBox("Error Opening File", "Error opening file: " + e.getMessage());
         }
     }
 
@@ -122,20 +185,12 @@ public class CasWrite extends TApplication {
             // If filenames were provided as arguments, open them
             for (String arg : args) {
                 File file = new File(arg);
-                if (file.exists() && file.isFile()) {
-                    try {
-                        // Determine if it's a CSV file or text file
-                        String filename = file.getName().toLowerCase();
-                        if (filename.endsWith(".csv") || filename.endsWith(".tsv")) {
-                            new TTableWindow(app, file);
-                        } else {
-                            new TEditorWindow(app, file);
-                        }
-                    } catch (Exception e) {
-                        // Show error message to user via message box
-                        app.messageBox("Error Opening File",
-                            "Failed to open '" + file.getName() + "': " + e.getMessage());
-                    }
+                try {
+                    app.openFileInWindow(file);
+                } catch (Exception e) {
+                    // Show error message to user via message box
+                    app.messageBox("Error Opening File",
+                        "Failed to open '" + file.getName() + "': " + e.getMessage());
                 }
             }
 
