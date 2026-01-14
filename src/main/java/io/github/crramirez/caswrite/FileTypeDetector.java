@@ -24,6 +24,13 @@ package io.github.crramirez.caswrite;
 public class FileTypeDetector {
 
     /**
+     * Creates a new FileTypeDetector instance.
+     */
+    public FileTypeDetector() {
+        // Default constructor
+    }
+
+    /**
      * Enum representing the type of file viewer to use.
      */
     public enum FileType {
