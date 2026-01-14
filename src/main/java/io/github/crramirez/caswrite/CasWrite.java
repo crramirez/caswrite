@@ -47,8 +47,9 @@ public class CasWrite extends TApplication {
     private final FileTypeDetector fileTypeDetector = new FileTypeDetector();
 
     // Track previous menu states to avoid unnecessary updates
-    private boolean lastSaveEnabled = false;
-    private boolean lastSaveAsEnabled = false;
+    // volatile ensures visibility across threads (main thread vs application thread)
+    private volatile boolean lastSaveEnabled = false;
+    private volatile boolean lastSaveAsEnabled = false;
 
     /**
      * Constructor.
@@ -268,19 +269,27 @@ public class CasWrite extends TApplication {
         try {
             CasWrite app = new CasWrite();
             
-            // If filenames were provided as arguments, open them
-            for (String arg : args) {
-                File file = new File(arg);
-                try {
-                    app.openFileInWindow(file);
-                } catch (Exception e) {
-                    // Show error message to user via message box
-                    app.messageBox("Error Opening File",
-                        "Failed to open '" + file.getName() + "': " + e.getMessage());
-                }
+            // Start the application thread first to ensure the event loop is running
+            Thread appThread = new Thread(app, "CasWrite-Main");
+            appThread.start();
+            
+            // Schedule file opening to run on the application thread
+            // This avoids race conditions by ensuring UI operations happen
+            // in the application's event loop after it has started
+            if (args.length > 0) {
+                app.invokeLater(() -> {
+                    for (String arg : args) {
+                        File file = new File(arg);
+                        try {
+                            app.openFileInWindow(file);
+                        } catch (Exception e) {
+                            // Show error message to user via message box
+                            app.messageBox("Error Opening File",
+                                "Failed to open '" + file.getName() + "': " + e.getMessage());
+                        }
+                    }
+                });
             }
-
-            (new Thread(app)).start();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
