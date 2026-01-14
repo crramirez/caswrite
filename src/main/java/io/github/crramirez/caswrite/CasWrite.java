@@ -68,8 +68,6 @@ public class CasWrite extends TApplication {
         // Initialize menu states (no windows at startup)
         disableMenuItem(TMenu.MID_SAVE_FILE);
         disableMenuItem(TMenu.MID_SAVE_AS_FILE);
-        lastSaveEnabled = false;
-        lastSaveAsEnabled = false;
     }
 
     /**
