@@ -117,7 +117,7 @@ public class CasWrite extends TApplication {
                 openFileInWindow(file);
             }
         } catch (IOException e) {
-            messageBox("Error", "Error opening file: " + e.getMessage());
+            messageBox("Error Opening File", "Error opening file: " + e.getMessage());
         }
     }
 
@@ -128,6 +128,17 @@ public class CasWrite extends TApplication {
      * @throws IOException if an error occurs opening the file
      */
     private void openFileInWindow(File file) throws IOException {
+        openFileInWindow(file, false);
+    }
+
+    /**
+     * Open a file in the appropriate window type.
+     *
+     * @param file the file to open
+     * @param forceTable if true, always open as table regardless of extension
+     * @throws IOException if an error occurs opening the file
+     */
+    private void openFileInWindow(File file, boolean forceTable) throws IOException {
         if (!file.exists()) {
             throw new IOException("File does not exist: " + file.getPath());
         }
@@ -135,11 +146,15 @@ public class CasWrite extends TApplication {
             throw new IOException("Not a regular file: " + file.getPath());
         }
         // Determine if it's a CSV/TSV file or text file
-        String name = file.getName().toLowerCase();
-        if (name.endsWith(".csv") || name.endsWith(".tsv")) {
+        if (forceTable) {
             new TTableWindow(this, file);
         } else {
-            new TEditorWindow(this, file);
+            String name = file.getName().toLowerCase();
+            if (name.endsWith(".csv") || name.endsWith(".tsv")) {
+                new TTableWindow(this, file);
+            } else {
+                new TEditorWindow(this, file);
+            }
         }
     }
 
@@ -151,18 +166,10 @@ public class CasWrite extends TApplication {
             String filename = fileOpenBox(".");
             if (filename != null) {
                 File file = new File(filename);
-                if (!file.exists()) {
-                    messageBox("Error", "File does not exist: " + file.getPath());
-                    return;
-                }
-                if (!file.isFile()) {
-                    messageBox("Error", "Not a regular file: " + file.getPath());
-                    return;
-                }
-                new TTableWindow(this, file);
+                openFileInWindow(file, true);
             }
         } catch (IOException e) {
-            messageBox("Error", "Error opening file: " + e.getMessage());
+            messageBox("Error Opening File", "Error opening file: " + e.getMessage());
         }
     }
 
