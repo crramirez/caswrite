@@ -38,6 +38,9 @@ public class CasWrite extends TApplication {
     // Custom menu item IDs
     private static final int MID_OPEN_AS_TABLE = 2000;
 
+    // File type detector for determining how to open files
+    private final FileTypeDetector fileTypeDetector = new FileTypeDetector();
+
     /**
      * Constructor.
      *
@@ -146,15 +149,10 @@ public class CasWrite extends TApplication {
             throw new IOException("Not a regular file: " + file.getPath());
         }
         // Determine if it's a CSV/TSV file or text file
-        if (forceTable) {
+        if (forceTable || fileTypeDetector.isTableFile(file.getName())) {
             new TTableWindow(this, file);
         } else {
-            String name = file.getName().toLowerCase();
-            if (name.endsWith(".csv") || name.endsWith(".tsv")) {
-                new TTableWindow(this, file);
-            } else {
-                new TEditorWindow(this, file);
-            }
+            new TEditorWindow(this, file);
         }
     }
 
