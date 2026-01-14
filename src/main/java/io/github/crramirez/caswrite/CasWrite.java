@@ -46,6 +46,10 @@ public class CasWrite extends TApplication {
     // File type detector for determining how to open files
     private final FileTypeDetector fileTypeDetector = new FileTypeDetector();
 
+    // Track previous menu states to avoid unnecessary updates
+    private boolean lastSaveEnabled = true;
+    private boolean lastSaveAsEnabled = true;
+
     /**
      * Constructor.
      *
@@ -60,6 +64,12 @@ public class CasWrite extends TApplication {
         addEditMenu();
         addTableMenu();
         addWindowMenu();
+
+        // Initialize menu states (no windows at startup)
+        disableMenuItem(TMenu.MID_SAVE_FILE);
+        disableMenuItem(TMenu.MID_SAVE_AS_FILE);
+        lastSaveEnabled = false;
+        lastSaveAsEnabled = false;
     }
 
     /**
@@ -194,24 +204,30 @@ public class CasWrite extends TApplication {
 
     /**
      * Update the enabled/disabled state of menu items based on current
-     * application state.
+     * application state. Only updates menu items when their state changes.
      */
     private void updateMenuStates() {
         boolean hasWindow = windowCount() > 0;
-        boolean hasUnsavedChanges = hasUnsavedChangesInActiveWindow();
+        boolean shouldEnableSave = hasWindow && hasUnsavedChangesInActiveWindow();
+        boolean shouldEnableSaveAs = hasWindow;
 
-        // Disable Save and Save As when there is no window
-        if (hasWindow) {
-            // Enable Save only if there are unsaved changes
-            if (hasUnsavedChanges) {
+        // Only update menu items when state changes
+        if (shouldEnableSave != lastSaveEnabled) {
+            if (shouldEnableSave) {
                 enableMenuItem(TMenu.MID_SAVE_FILE);
             } else {
                 disableMenuItem(TMenu.MID_SAVE_FILE);
             }
-            enableMenuItem(TMenu.MID_SAVE_AS_FILE);
-        } else {
-            disableMenuItem(TMenu.MID_SAVE_FILE);
-            disableMenuItem(TMenu.MID_SAVE_AS_FILE);
+            lastSaveEnabled = shouldEnableSave;
+        }
+
+        if (shouldEnableSaveAs != lastSaveAsEnabled) {
+            if (shouldEnableSaveAs) {
+                enableMenuItem(TMenu.MID_SAVE_AS_FILE);
+            } else {
+                disableMenuItem(TMenu.MID_SAVE_AS_FILE);
+            }
+            lastSaveAsEnabled = shouldEnableSaveAs;
         }
     }
 
@@ -227,6 +243,7 @@ public class CasWrite extends TApplication {
         }
 
         // For TEditorWindow, find the TEditor child and check if it's dirty
+        // TEditorWindow has exactly one TEditor child
         if (activeWindow instanceof TEditorWindow) {
             for (TWidget child : activeWindow.getChildren()) {
                 if (child instanceof TEditor) {
