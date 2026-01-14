@@ -24,13 +24,6 @@ package io.github.crramirez.caswrite;
 public class FileTypeDetector {
 
     /**
-     * Creates a new FileTypeDetector instance.
-     */
-    public FileTypeDetector() {
-        // Default constructor
-    }
-
-    /**
      * Enum representing the type of file viewer to use.
      */
     public enum FileType {
@@ -43,15 +36,16 @@ public class FileTypeDetector {
     /**
      * Determines the file type based on the filename.
      * CSV and TSV files are detected as TABLE type, all other files as TEXT.
+     * If the filename is null, returns TEXT as the default type.
      *
-     * @param filename the name of the file (can include path)
-     * @return the detected FileType
+     * @param filename the name of the file (can include path), may be null
+     * @return the detected FileType, never null
      */
     public FileType detectFileType(String filename) {
         if (filename == null) {
             return FileType.TEXT;
         }
-        String lowerName = filename.toLowerCase();
+        String lowerName = filename.toLowerCase(java.util.Locale.ROOT);
         if (lowerName.endsWith(".csv") || lowerName.endsWith(".tsv")) {
             return FileType.TABLE;
         }
