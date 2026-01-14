@@ -19,8 +19,11 @@ package io.github.crramirez.caswrite;
 
 import casciian.TApplication;
 import casciian.TCommand;
+import casciian.TEditor;
 import casciian.TEditorWindow;
 import casciian.TTableWindow;
+import casciian.TWidget;
+import casciian.TWindow;
 import casciian.event.TCommandEvent;
 import casciian.event.TMenuEvent;
 import casciian.menu.TMenu;
@@ -177,6 +180,68 @@ public class CasWrite extends TApplication {
         } catch (IOException e) {
             messageBox("Error Opening File", "Error opening file: " + e.getMessage());
         }
+    }
+
+    /**
+     * Called before drawing the screen. Updates menu item states based on
+     * current application state.
+     */
+    @Override
+    protected void onPreDraw() {
+        super.onPreDraw();
+        updateMenuStates();
+    }
+
+    /**
+     * Update the enabled/disabled state of menu items based on current
+     * application state.
+     */
+    private void updateMenuStates() {
+        boolean hasWindow = windowCount() > 0;
+        boolean hasUnsavedChanges = hasUnsavedChangesInActiveWindow();
+
+        // Disable Save and Save As when there is no window
+        if (hasWindow) {
+            // Enable Save only if there are unsaved changes
+            if (hasUnsavedChanges) {
+                enableMenuItem(TMenu.MID_SAVE_FILE);
+            } else {
+                disableMenuItem(TMenu.MID_SAVE_FILE);
+            }
+            enableMenuItem(TMenu.MID_SAVE_AS_FILE);
+        } else {
+            disableMenuItem(TMenu.MID_SAVE_FILE);
+            disableMenuItem(TMenu.MID_SAVE_AS_FILE);
+        }
+    }
+
+    /**
+     * Check if the active window has unsaved changes.
+     *
+     * @return true if the active window has unsaved changes, false otherwise
+     */
+    private boolean hasUnsavedChangesInActiveWindow() {
+        TWindow activeWindow = getActiveWindow();
+        if (activeWindow == null) {
+            return false;
+        }
+
+        // For TEditorWindow, find the TEditor child and check if it's dirty
+        if (activeWindow instanceof TEditorWindow) {
+            for (TWidget child : activeWindow.getChildren()) {
+                if (child instanceof TEditor) {
+                    return ((TEditor) child).isDirty();
+                }
+            }
+        }
+
+        // For TTableWindow, we assume it can always be saved (no isDirty method available)
+        // So return true to keep Save enabled
+        if (activeWindow instanceof TTableWindow) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
