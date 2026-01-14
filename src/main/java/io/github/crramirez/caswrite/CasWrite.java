@@ -269,9 +269,13 @@ public class CasWrite extends TApplication {
         try {
             CasWrite app = new CasWrite();
             
+            // Start the application thread first to ensure the event loop is running
+            Thread appThread = new Thread(app, "CasWrite-Main");
+            appThread.start();
+            
             // Schedule file opening to run on the application thread
             // This avoids race conditions by ensuring UI operations happen
-            // in the application's event loop
+            // in the application's event loop after it has started
             if (args.length > 0) {
                 app.invokeLater(() -> {
                     for (String arg : args) {
@@ -286,8 +290,6 @@ public class CasWrite extends TApplication {
                     }
                 });
             }
-
-            (new Thread(app)).start();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
