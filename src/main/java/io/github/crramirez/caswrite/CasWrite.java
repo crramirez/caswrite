@@ -47,8 +47,8 @@ public class CasWrite extends TApplication {
     private final FileTypeDetector fileTypeDetector = new FileTypeDetector();
 
     // Track previous menu states to avoid unnecessary updates
-    private boolean lastSaveEnabled = true;
-    private boolean lastSaveAsEnabled = true;
+    private boolean lastSaveEnabled = false;
+    private boolean lastSaveAsEnabled = false;
 
     /**
      * Constructor.
