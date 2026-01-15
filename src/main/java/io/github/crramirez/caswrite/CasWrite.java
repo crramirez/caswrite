@@ -21,6 +21,7 @@ import casciian.TApplication;
 import casciian.TCommand;
 import casciian.TEditor;
 import casciian.TEditorWindow;
+import casciian.TMessageBox;
 import casciian.TTableWindow;
 import casciian.TWidget;
 import casciian.TWindow;
@@ -120,6 +121,63 @@ public class CasWrite extends TApplication {
             default:
                 return super.onMenu(menu);
         }
+    }
+
+    /**
+     * Handle command events.
+     *
+     * @param command command event
+     * @return true if the command was handled, false otherwise
+     */
+    @Override
+    protected boolean onCommand(TCommandEvent command) {
+        if (command.equals(TCommand.cmWindowClose)) {
+            TWindow activeWindow = getActiveWindow();
+            if (activeWindow instanceof TEditorWindow) {
+                TEditor editor = findEditor((TEditorWindow) activeWindow);
+                if (editor != null && editor.isDirty()) {
+                    TMessageBox.Result result = messageBox(
+                        "Save Changes?",
+                        "The file has unsaved changes. Do you want to save before closing?",
+                        TMessageBox.Type.YESNOCANCEL
+                    ).getResult();
+
+                    switch (result) {
+                        case YES:
+                            // Save the file, then close the window
+                            activeWindow.onCommand(new TCommandEvent(
+                                command.getBackend(), TCommand.cmSave));
+                            closeWindow(activeWindow);
+                            return true;
+                        case NO:
+                            // Close without saving
+                            closeWindow(activeWindow);
+                            return true;
+                        case CANCEL:
+                            // Don't close
+                            return true;
+                        default:
+                            return true;
+                    }
+                }
+            }
+        }
+        return super.onCommand(command);
+    }
+
+    /**
+     * Find the TEditor widget within a TEditorWindow.
+     *
+     * @param window the editor window to search
+     * @return the TEditor widget, or null if not found
+     */
+    private TEditor findEditor(TEditorWindow window) {
+        for (TWidget child : window.getChildren()) {
+            if (child instanceof TEditor) {
+                return (TEditor) child;
+            }
+        }
+        return null;
     }
 
     /**
@@ -242,12 +300,10 @@ public class CasWrite extends TApplication {
         }
 
         // For TEditorWindow, find the TEditor child and check if it's dirty
-        // TEditorWindow has exactly one TEditor child
         if (activeWindow instanceof TEditorWindow) {
-            for (TWidget child : activeWindow.getChildren()) {
-                if (child instanceof TEditor) {
-                    return ((TEditor) child).isDirty();
-                }
+            TEditor editor = findEditor((TEditorWindow) activeWindow);
+            if (editor != null) {
+                return editor.isDirty();
             }
         }
 
