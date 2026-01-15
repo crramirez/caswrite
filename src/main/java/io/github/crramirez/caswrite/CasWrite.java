@@ -21,6 +21,7 @@ import casciian.TApplication;
 import casciian.TCommand;
 import casciian.TEditor;
 import casciian.TEditorWindow;
+import casciian.TMessageBox;
 import casciian.TTableWindow;
 import casciian.TWidget;
 import casciian.TWindow;
@@ -120,6 +121,72 @@ public class CasWrite extends TApplication {
             default:
                 return super.onMenu(menu);
         }
+    }
+
+    /**
+     * Handle command events.
+     *
+     * @param command command event
+     * @return true if the command was handled, false otherwise
+     */
+    @Override
+    protected boolean onCommand(TCommandEvent command) {
+        if (command.getCmd().equals(TCommand.cmWindowClose)) {
+            TWindow activeWindow = getActiveWindow();
+            if (activeWindow instanceof TEditorWindow) {
+                TEditor editor = findEditor((TEditorWindow) activeWindow);
+                if (editor != null && editor.isDirty()) {
+                    TMessageBox.Result result = messageBox(
+                        "Save Changes?",
+                        "The file has unsaved changes. Do you want to save before closing?",
+                        TMessageBox.Type.YESNOCANCEL
+                    ).getResult();
+
+                    switch (result) {
+                        case YES:
+                            // Save the file (synchronous); only close if editor is no longer dirty
+                            activeWindow.onCommand(new TCommandEvent(
+                                command.getBackend(), TCommand.cmSave));
+                            // Check if the save succeeded by verifying the editor is no longer dirty
+                            if (!editor.isDirty()) {
+                                closeWindow(activeWindow);
+                            } else {
+                                // Save failed or was cancelled, keep the window open
+                                messageBox(
+                                    "Save Failed",
+                                    "The file could not be saved. The window will remain open.",
+                                    TMessageBox.Type.OK
+                                ).getResult();
+                            }
+                            return true;
+                        case NO:
+                            // Close without saving
+                            closeWindow(activeWindow);
+                            return true;
+                        case CANCEL:
+                        default:
+                            // Don't close
+                            return true;
+                    }
+                }
+            }
+        }
+        return super.onCommand(command);
+    }
+
+    /**
+     * Find the TEditor widget within a TEditorWindow.
+     *
+     * @param window the editor window to search
+     * @return the TEditor widget, or null if not found
+     */
+    private TEditor findEditor(TEditorWindow window) {
+        for (TWidget child : window.getChildren()) {
+            if (child instanceof TEditor) {
+                return (TEditor) child;
+            }
+        }
+        return null;
     }
 
     /**
@@ -242,12 +309,10 @@ public class CasWrite extends TApplication {
         }
 
         // For TEditorWindow, find the TEditor child and check if it's dirty
-        // TEditorWindow has exactly one TEditor child
         if (activeWindow instanceof TEditorWindow) {
-            for (TWidget child : activeWindow.getChildren()) {
-                if (child instanceof TEditor) {
-                    return ((TEditor) child).isDirty();
-                }
+            TEditor editor = findEditor((TEditorWindow) activeWindow);
+            if (editor != null) {
+                return editor.isDirty();
             }
         }
 
