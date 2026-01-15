@@ -144,7 +144,7 @@ public class CasWrite extends TApplication {
 
                     switch (result) {
                         case YES:
-                            // Save the file, then close the window
+                            // Save the file (synchronous), then close the window
                             activeWindow.onCommand(new TCommandEvent(
                                 command.getBackend(), TCommand.cmSave));
                             closeWindow(activeWindow);
@@ -154,9 +154,8 @@ public class CasWrite extends TApplication {
                             closeWindow(activeWindow);
                             return true;
                         case CANCEL:
+                        case OK:
                             // Don't close
-                            return true;
-                        default:
                             return true;
                     }
                 }
