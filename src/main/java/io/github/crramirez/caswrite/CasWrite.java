@@ -131,7 +131,7 @@ public class CasWrite extends TApplication {
      */
     @Override
     protected boolean onCommand(TCommandEvent command) {
-        if (command.equals(TCommand.cmWindowClose)) {
+        if (command.getCmd().equals(TCommand.cmWindowClose)) {
             TWindow activeWindow = getActiveWindow();
             if (activeWindow instanceof TEditorWindow) {
                 TEditor editor = findEditor((TEditorWindow) activeWindow);
@@ -144,17 +144,27 @@ public class CasWrite extends TApplication {
 
                     switch (result) {
                         case YES:
-                            // Save the file (synchronous), then close the window
+                            // Save the file (synchronous); only close if editor is no longer dirty
                             activeWindow.onCommand(new TCommandEvent(
                                 command.getBackend(), TCommand.cmSave));
-                            closeWindow(activeWindow);
+                            // Check if the save succeeded by verifying the editor is no longer dirty
+                            if (!editor.isDirty()) {
+                                closeWindow(activeWindow);
+                            } else {
+                                // Save failed or was cancelled, keep the window open
+                                messageBox(
+                                    "Save Failed",
+                                    "The file could not be saved. The window will remain open.",
+                                    TMessageBox.Type.OK
+                                ).getResult();
+                            }
                             return true;
                         case NO:
                             // Close without saving
                             closeWindow(activeWindow);
                             return true;
                         case CANCEL:
-                        case OK:
+                        default:
                             // Don't close
                             return true;
                     }
