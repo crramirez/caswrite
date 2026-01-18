@@ -102,25 +102,29 @@ public class CasWrite extends TApplication {
      */
     @Override
     public boolean onMenu(TMenuEvent menu) {
-        switch (menu.getId()) {
-            case TMenu.MID_NEW:
+        return switch (menu.getId()) {
+            case TMenu.MID_NEW -> {
                 createNewEditor();
-                return true;
-            case TMenu.MID_OPEN_FILE:
+                yield true;
+            }
+            case TMenu.MID_OPEN_FILE -> {
                 openFile();
-                return true;
-            case MID_OPEN_AS_TABLE:
+                yield true;
+            }
+            case MID_OPEN_AS_TABLE -> {
                 openAsTable();
-                return true;
-            case TMenu.MID_SAVE_FILE:
+                yield true;
+            }
+            case TMenu.MID_SAVE_FILE -> {
                 postMenuEvent(new TCommandEvent(menu.getBackend(), TCommand.cmSave));
-                return true;
-            case TMenu.MID_SAVE_AS_FILE:
+                yield true;
+            }
+            case TMenu.MID_SAVE_AS_FILE -> {
                 postMenuEvent(new TCommandEvent(menu.getBackend(), TCommand.cmSaveAs));
-                return true;
-            default:
-                return super.onMenu(menu);
-        }
+                yield true;
+            }
+            default -> super.onMenu(menu);
+        };
     }
 
     /**
