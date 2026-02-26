@@ -162,33 +162,6 @@ CasWrite supports standard keyboard shortcuts:
 - **Ctrl+C**: Copy
 - **Ctrl+V**: Paste
 
-## Customizing the Template
-
-This template is designed to be a starting point for your own Casciian-based application:
-
-1. **Modify features**: Update `CasWrite.java` to add new menu items or functionality
-2. **Add file type support**: Extend the file opening logic to support additional formats
-3. **Customize menus**: Add new menus or modify existing menu items
-4. **Update metadata**: 
-   - Edit `build.gradle` to update group, description, URLs, and maintainer information
-   - Update `gradle.properties` to set your version
-5. **Update documentation**: Modify this README to describe your specific application
-
-## Project Structure
-
-```
-caswrite/
-├── build.gradle              # Gradle build configuration
-├── settings.gradle           # Gradle settings
-├── gradle.properties         # Project version and properties
-├── src/
-│   └── main/
-│       └── java/
-│           └── io/github/crramirez/caswrite/
-│               └── CasWrite.java   # Main application class
-└── README.md
-```
-
 ## License
 
 Apache License 2.0 - Copyright 2025 Carlos Rafael Ramirez
